@@ -10,6 +10,10 @@ require "zlib"
 require "terraforming/util"
 require "terraforming/version"
 
+require "terraforming/matcher/default_matcher.rb"
+require "terraforming/matcher/property_matcher.rb"
+require "terraforming/matcher/compound_matcher.rb"
+
 require "terraforming/cli"
 require "terraforming/resource/db_parameter_group"
 require "terraforming/resource/db_security_group"

@@ -3,16 +3,17 @@ module Terraforming
     class Route53Zone
       include Terraforming::Util
 
-      def self.tf(client: Aws::Route53::Client.new)
-        self.new(client).tf
+      def self.tf(client: Aws::Route53::Client.new, matcher: nil)
+        self.new(client, matcher:matcher).tf
       end
 
-      def self.tfstate(client: Aws::Route53::Client.new, tfstate_base: nil)
-        self.new(client).tfstate(tfstate_base)
+      def self.tfstate(client: Aws::Route53::Client.new, tfstate_base: nil, matcher: nil)
+        self.new(client, matcher:matcher).tfstate(tfstate_base)
       end
 
-      def initialize(client)
+      def initialize(client, matcher: nil)
         @client = client
+        @matcher = matcher
       end
 
       def tf

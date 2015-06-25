@@ -1,5 +1,6 @@
 module Terraforming
   module Util
+
     def apply_template(client, erb)
       ERB.new(open(template_path(erb)).read, nil, "-").result(binding)
     end
@@ -32,6 +33,10 @@ module Terraforming
       else
         json.strip
       end
+    end
+
+    def matcher
+      @matcher ||= DefaultMatcher.new
     end
 
     def tfstate_skeleton

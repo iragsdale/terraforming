@@ -2,6 +2,7 @@ module Terraforming
   class CLI < Thor
     class_option :merge, type: :string, desc: "tfstate file to merge"
     class_option :tfstate, type: :boolean, desc: "Generate tfstate"
+    class_option :limit, type: :array, banner: "image_id=ami-xxxx placement.availability_zone=us-east-1b tags=~name", desc: "List matching resources. Arguments using =~ match using regular expressions."
 
     desc "dbpg", "Database Parameter Group"
     def dbpg
@@ -111,20 +112,25 @@ module Terraforming
     private
 
     def execute(klass, options)
+      matcher = if options[:limit]
+          Terraforming::Matcher::CompoundMatcher.new(options[:limit])
+        else
+          Terraforming::Matcher::DefaultMatcher.new
+        end
       result = if options[:tfstate]
-                 tfstate(klass, options[:merge])
+                 tfstate(klass, options[:merge], matcher)
                else
-                 klass.tf
+                 klass.tf(matcher: matcher)
                end
 
       puts result
     end
 
-    def tfstate(klass, tfstate_path)
-      return klass.tfstate unless tfstate_path
+    def tfstate(klass, tfstate_path, matcher)
+      return klass.tfstate(matcher: matcher) unless tfstate_path
 
       tfstate_base = JSON.parse(open(tfstate_path).read)
-      klass.tfstate(tfstate_base: tfstate_base)
+      klass.tfstate(tfstate_base: tfstate_base, matcher: matcher)
     end
   end
 end

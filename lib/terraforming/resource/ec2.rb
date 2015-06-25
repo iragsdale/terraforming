@@ -3,16 +3,17 @@ module Terraforming
     class EC2
       include Terraforming::Util
 
-      def self.tf(client: Aws::EC2::Client.new)
-        self.new(client).tf
+      def self.tf(client: Aws::EC2::Client.new, matcher: nil)
+        self.new(client, matcher:matcher).tf
       end
 
-      def self.tfstate(client: Aws::EC2::Client.new, tfstate_base: nil)
-        self.new(client).tfstate(tfstate_base)
+      def self.tfstate(client: Aws::EC2::Client.new, tfstate_base: nil, matcher: nil)
+        self.new(client, matcher:matcher).tfstate(tfstate_base)
       end
 
-      def initialize(client)
+      def initialize(client, matcher: nil)
         @client = client
+        @matcher = matcher
       end
 
       def tf
@@ -60,7 +61,7 @@ module Terraforming
       private
 
       def instances
-        @client.describe_instances.reservations.map(&:instances).flatten
+        @client.describe_instances.reservations.map(&:instances).flatten.select{|i| matcher.match(i) }
       end
 
       def module_name_of(instance)
